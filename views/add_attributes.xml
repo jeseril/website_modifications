@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="add_attributes_in_product" model="ir.ui.view">
+            <field name="name">add.attributes.in.product</field>
+            <field name="model">add.attributes</field>
+            <field name="arch" type="xml">
+                <form string="Add Attributes">
+                    <sheet>
+                        <group>
+                            <field name="excel_file" string="Excel File" filename="excel_filename"/>
+                        </group>
+                    </sheet>
+                    <sheet>
+                            <button name="import_attribute_lines_from_excel" string="Import Excel" type="object" class="btn-primary"/>
+                            <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_add_attributes" model="ir.actions.act_window">
+            <field name="name">Add Attributes</field>
+            <field name="res_model">add.attributes</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="add_attributes_in_product"/>
+        </record>
+
+        <menuitem
+            id="add_attributes_item"
+            name="Add Attributes"
+            action="action_add_attributes"
+            parent="stock.menu_stock_inventory_control"
+            sequence="10"
+            />
+    </data>
+</odoo>

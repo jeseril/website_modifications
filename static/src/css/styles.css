@@ -1,0 +1,111 @@
+/*
+.hidden {
+  display: none;
+}
+
+.category_menu {
+  width: 250px;
+}
+
+.category_menu li {
+  margin: 5px 0;
+}
+
+.parent_category {
+  display: flex;
+}
+
+.button_category_container {
+  display: flex;
+}
+
+.parent_category.selected {
+  background-color: #f2f2f2;
+}
+
+.selected-category {
+  background-color: #f2f2f2;
+}
+
+.btn_category {
+  display: flex;
+  height: 25px;
+  width: 25px;
+  margin-right: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+ul ul {
+  list-style-type: none;
+}
+
+ul ul ul {
+  list-style-type: none;
+}
+
+.catagory-head-list ul li a {
+  font-size: 1em;
+  line-height: inherit;
+}
+
+.oe_website_sale ul ul {
+  margin-left: 0rem;
+}
+
+.item_menu_category {
+  margin-left: 20px;
+}
+
+.catagory-head-list ul {
+  padding-left: 0px;
+}
+
+.catagory-head-list ul{
+  padding: 0;
+}
+
+@media (max-width: 992px) {
+  .row {
+    flex-direction: column;
+  }
+  .row {
+    align-items: center;
+  }
+}
+*/
+
+#valor-y-cambio {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#valor-y-cambio > *{
+  margin: 5px;
+}
+
+#valor-y-cambio .contenedor_dolar{
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#valor-y-cambio p {
+  margin-bottom: 0;
+}
+
+#valor-y-cambio > p {
+  font-weight: 500;
+  border-radius:10px;
+}
+
+.contenedor_dolar p:nth-child(2){
+  border-left: 1px solid black;
+  height: 50px;
+  margin: 0 10px;
+}
+
+.numero_dinero{
+  font-weight: 500;
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="product_sindication_html" inherit_id="website_sale.product" name="Product Sindication Content HTML">
+        <xpath expr="//div[@id='product_detail_main']" position="after">
+            <section>
+                <span class="text-muted" t-raw="product.html_code"/>
+            </section>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_website_modifications,website_modifications,model_add_attributes,,1,1,1,1
+access_website_modifications_dolar,website_modifications_dolar,model_trm_service,,1,1,1,1
