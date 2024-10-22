@@ -21,15 +21,17 @@ class MPSMethods(models.Model):
                 products_dict = {}
                 for line in account_move.invoice_line_ids:
                     product_tmpl_id = line.product_id.product_tmpl_id
-                    if product_tmpl_id not in products_dict:
-                        products_dict[product_tmpl_id] = {
-                            'sku_producto': str(product_tmpl_id.default_code or ''),
-                            'marca_producto': str(product_tmpl_id.dropshipping_brand or ''),
-                            'bodega_producto': str(product_tmpl_id.dropshipping_warehouse or ''),
-                            'cantidad': line.quantity
-                        }
-                    else:
-                        products_dict[product_tmpl_id]['cantidad'] += line.quantity
+
+                    if product_tmpl_id.is_dropshipping:
+                        if product_tmpl_id not in products_dict:
+                            products_dict[product_tmpl_id] = {
+                                'sku_producto': str(product_tmpl_id.default_code or ''),
+                                'marca_producto': str(product_tmpl_id.dropshipping_brand or ''),
+                                'bodega_producto': str(product_tmpl_id.dropshipping_warehouse or ''),
+                                'cantidad': line.quantity
+                            }
+                        else:
+                            products_dict[product_tmpl_id]['cantidad'] += line.quantity
 
                 # Construir lista de detalles del pedido
                 listaPedidoDetalle = []
@@ -63,16 +65,32 @@ class MPSMethods(models.Model):
                 return api_configuration_id.api_credentials_id.token or ''
             if word_to_replace == 'type':
                 return api_configuration_id.authorization_type or ''
-            if word_to_replace == 'id_categoria' and product_api_record:
-                return str(product_api_record.id_category or '')
-            if word_to_replace == 'id_subcategoria' and product_api_record:
-                return str(product_api_record.id_subcategory or '')
-            if word_to_replace == 'keyword' and product_api_record:
-                return product_api_record.keyword or ''
-            if word_to_replace == 'sku' and sku:
-                return sku or ''
-            if word_to_replace == 'id_marca' and product_api_record:
-                return str(product_api_record.brand_api_ids.codigo_marca or '')
+            if word_to_replace == 'id_categoria':
+                if product_api_record:
+                    id_category = product_api_record.id_category
+                    if isinstance(id_category, int):
+                        id_category = str(id_category)
+                    return id_category or ''
+            if word_to_replace == 'id_subcategoria':
+                if product_api_record:
+                    id_subcategory = product_api_record.subcategory_api_ids.codigo_sub_categoria
+                    if isinstance(id_subcategory, int):
+                        id_subcategory = str(id_subcategory)
+                    return id_subcategory or ''
+            if word_to_replace == 'keyword':
+                if product_api_record:
+                    keyword = product_api_record.keyword
+                    return keyword or ''
+            if word_to_replace == 'sku':
+                if product_api_record:
+                    keyword = sku
+                    return keyword or ''
+            if word_to_replace == 'id_marca':
+                if product_api_record:
+                    id_brand = product_api_record.brand_api_ids.codigo_marca
+                    if isinstance(id_brand, int):
+                        id_brand = str(id_brand)
+                    return id_brand or ''
 
             # Campos relacionados a account_move
             if account_move:
