@@ -6,7 +6,7 @@
     'author': 'Jesus Rincon',
     'website': 'https://www.linkedin.com/in/jesussebastian/',
     'category': 'API',
-    'depends': ['base','base_setup','product','sale','purchase'],
+    'depends': ['base','base_setup','product','sale','purchase','website_sale'],
     'data': [
         'security/ir.model.access.csv',
         'data/cron_jobs.xml',

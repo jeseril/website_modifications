@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-import requests, ast, re, logging, json
+import requests, ast, re, logging, json, base64
 from odoo.exceptions import UserError
 
 
@@ -273,7 +273,9 @@ class MPSMethods(models.Model):
                             'quantity': bodega.get('Cantidad', 0),
                             'mark': product['Marks'],
                             'warehouse': bodega.get('NombreBodega', ''),
-                            'product_api_id': product_api_id
+                            'product_api_id': product_api_id,
+                            'description': product['Description'],
+                            'image_url' : product['Imagenes']
                         })
                 elif 'ingramPartNumber' in product:  # INGRAM
                     self.env['product.api.result'].create({
@@ -399,6 +401,8 @@ class ProductApiProduct(models.Model):
     warehouse = fields.Char(string='Warehouse',readonly=True)
     product_api_id = fields.Many2one('call.products.api', string='Product API',readonly=True)
     selected = fields.Boolean(string='Selected', default=False)
+    description = fields.Char(string='Description',readonly=True)
+    image_url = fields.Char(string='Image URL',readonly=True)
 
     def create_odoo_product(self,update=None):
         for record in self:
@@ -406,6 +410,31 @@ class ProductApiProduct(models.Model):
             buy_route = self.env.ref('purchase_stock.route_warehouse0_buy')
             dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
             # Crear el producto si no existe y está seleccionado
+
+            try:
+                image_urls = ast.literal_eval(record.image_url)
+                # Filtrar URLs vacías
+                image_urls = [url for url in image_urls if url]
+            except (ValueError, SyntaxError):
+                image_urls = []  # Si hay un error al procesar las URLs, se asegura que la lista esté vacía
+                raise UserError('Error al procesar la lista de URLs de imagen')
+
+            # Obtener la primera URL válida de la lista para la imagen principal
+            main_image_url = image_urls[0] if image_urls else None
+            additional_image_urls = image_urls[1:]  # Las demás imágenes serán adicionales
+
+            # Descargar la imagen y convertirla a base64
+            image_base64 = None
+            if main_image_url:
+                try:
+                    response = requests.get(main_image_url)
+                    if response.status_code == 200:
+                        image_base64 = base64.b64encode(response.content)
+                    else:
+                        raise UserError(f'Error al descargar la imagen: {response.status_code}')
+                except Exception as e:
+                    raise UserError(f'Error al procesar la imagen: {str(e)}')
+
             if not product_template and record.selected:
                 # Obtener rutas de compra y dropshipping
 
@@ -420,7 +449,10 @@ class ProductApiProduct(models.Model):
                     'is_dropshipping': True,
                     'route_ids': [(6, 0, [buy_route.id, dropship_route.id])],  # Asignar rutas
                     'dropshipping_warehouse': record.warehouse,
-                    'dropshipping_brand': record.mark
+                    'dropshipping_brand': record.mark,
+                    'description_sale' : record.description,
+                    'image_1920': image_base64,  # Actualizar la imagen principal
+                    'image_url':record.image_url,
                 })
 
             if product_template:
@@ -436,7 +468,10 @@ class ProductApiProduct(models.Model):
                     'is_dropshipping': True,
                     'route_ids': [(6, 0, [buy_route.id, dropship_route.id])],  # Asignar rutas
                     'dropshipping_warehouse': record.warehouse,
-                    'dropshipping_brand': record.mark
+                    'dropshipping_brand': record.mark,
+                    'description_sale' : record.description,
+                    'image_1920': image_base64,  # Actualizar la imagen principal
+                    'image_url':record.image_url,
                 })
 
                 partner_id = self.product_api_id.api_credentials_ids.partner_id.id
@@ -464,3 +499,23 @@ class ProductApiProduct(models.Model):
                         'price': record.price,
                         'quantity_supplier': record.quantity,
                     })
+
+            # Validar URLs adicionales con el campo 'image_url' del producto
+            existing_image_urls = product_template.image_url and ast.literal_eval(product_template.image_url) or []
+
+            for image_url in additional_image_urls:
+                if image_url and image_url not in existing_image_urls:
+                    try:
+                        response = requests.get(image_url)
+                        if response.status_code == 200:
+                            image_data = base64.b64encode(response.content)
+                            self.env['product.image'].create({
+                                'product_tmpl_id': product_template.id,
+                                'image_1920': image_data,
+                                'name': f'Additional Image for {product_template.name}',
+                                'image_url': image_url,  # Almacena la URL para evitar duplicados
+                            })
+                        else:
+                            raise UserError(f'Error al descargar la imagen adicional: {response.status_code}')
+                    except Exception as e:
+                        raise UserError(f'Error al procesar la imagen adicional: {str(e)}')

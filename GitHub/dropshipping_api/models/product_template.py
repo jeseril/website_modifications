@@ -7,7 +7,7 @@ class ProductTemplate(models.Model):
 
     is_dropshipping = fields.Boolean(default=False, string='¿Dropshipping?')
     special_price = fields.Boolean (default=False, string='¿Special_price Price Dropshipping?')
-
+    image_url = fields.Char(string='Links Imagenes Dropshipping')
     '''Información de pedido MPS'''
     dropshipping_warehouse = fields.Char (string="Dropshipping Warehouse")
     dropshipping_brand = fields.Char (string ='Product Brand')  # Relación inversa
@@ -37,3 +37,8 @@ class ProductSupplierInfo(models.Model):
     _inherit = 'product.supplierinfo'
 
     quantity_supplier = fields.Integer(string='Quantity supplier')
+
+class ProductImage(models.Model):
+    _inherit = 'product.image'
+
+    image_url = fields.Char(string='Links Imagenes Supplier')
